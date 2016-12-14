@@ -23,8 +23,8 @@ for line in puzzleInputLineArray {
     var insideBrackets = false
     var hasMatchOutsideBrackets = false
     var hasMatchInsideBrackets = false
-    for idx in 0..<line.length - 3 {
-        let chars = line[Range(idx ..< idx + 4)]
+    for i in 0..<line.length - 3 {
+        let chars = line[Range(i ..< i + 4)]
         if chars.characters.first == "[" {
             insideBrackets = true
         } else if chars.characters.first == "]" {
@@ -46,5 +46,49 @@ for line in puzzleInputLineArray {
 }
 
 print (part1Total)
+
+var part2Total = 0
+for line in puzzleInputLineArray {
+    var match = false
+    var arr: [String] = []
+    for i in 0..<line.length - 2 {
+        let chars = line[Range(i ..< i + 3)]
+        arr.append(chars)
+    }
+    
+    var inside1 = false
+    for i in 0..<arr.count {
+        let iChars = arr[i]
+        if iChars.characters.first == "[" {
+            inside1 = true
+        } else if iChars.characters.first == "]" {
+            inside1 = false
+        } else {
+            if !inside1 && iChars[0] == iChars[2] && iChars[0] != iChars[1] {
+                var inside2 = false
+                for j in 0..<arr.count {
+                    let jChars = arr[j]
+                    if jChars.characters.first == "[" {
+                        inside2 = true
+                    } else if jChars.characters.first == "]" {
+                        inside2 = false
+                    } else {
+                        if i != j {
+                            if inside2 && jChars[0] == iChars[1] && jChars[1] == iChars[0] && jChars[2] == jChars[0] {
+                                match = true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    if (match) {
+        part2Total += 1
+    }
+}
+
+print (part2Total)
 
 waitForInput()
