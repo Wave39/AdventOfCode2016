@@ -4,8 +4,6 @@
 
 import Cocoa
 
-var str = "Hello, playground"
-
 let puzzleInputPath = Bundle.main.path(forResource: "puzzle_input", ofType: "txt")
 let puzzleInputData = FileManager.default.contents(atPath: puzzleInputPath!)
 let puzzleInputString = String(data: puzzleInputData!, encoding: .utf8)
