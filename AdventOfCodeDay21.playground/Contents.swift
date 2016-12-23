@@ -79,11 +79,9 @@ func replace(myString: String, _ index: Int, _ newChar: Character) -> String {
 }
 
 var part1Password = passwordToScramble
-print ("Password starts with \(part1Password)")
 
 func processArray(arr: [String]) {
     for line in arr {
-        print ("Processing \(line)")
         let lineArr = line.components(separatedBy: " ")
         if lineArr[0] == "swap" {
             if lineArr[1] == "position" {
@@ -149,30 +147,28 @@ func processArray(arr: [String]) {
         } else {
             print ("Invalid command: \(lineArr[0])")
         }
-        
-        print ("Password is now \(part1Password)")
     }
 }
 
 processArray(arr: puzzleInputLineArray!)
 
-print (part1Password, terminator: "")
+print ("Part 1 answer: \(part1Password) ", terminator: "")
 
 func processArrayReverse(arr: [String]) {
+    var lineCtr = 1
     for line in arr {
-        print ("Processing \(line)")
         let lineArr = line.components(separatedBy: " ")
         if lineArr[0] == "swap" {
             if lineArr[1] == "position" {
-                let p2 = Int(lineArr[2])!
                 let p1 = Int(lineArr[5])!
+                let p2 = Int(lineArr[2])!
                 let c1 = Character(part1Password[p1])
                 let c2 = Character(part1Password[p2])
                 part1Password.replace(index: p1, newChar: c2)
                 part1Password.replace(index: p2, newChar: c1)
             } else if lineArr[1] == "letter" {
-                let c2 = Character(lineArr[2])
                 let c1 = Character(lineArr[5])
+                let c2 = Character(lineArr[2])
                 let p1 = part1Password.indexOfCharacter(char: c1)
                 let p2 = part1Password.indexOfCharacter(char: c2)
                 part1Password.replace(index: p1!, newChar: c2)
@@ -207,27 +203,31 @@ func processArrayReverse(arr: [String]) {
                     amount += 1
                 }
                 
-                if (idx == 0 && amount == 1) || amount == 2 {
-                    amount = 7
-                } else if amount == 3 {
-                    amount = 2
-                } else if amount == 4 {
-                    amount = 6
-                } else if amount == 6 {
+                if amount == 1 {
                     amount = 1
-                } else if amount == 7 {
-                    amount = 5
-                } else if (idx == 7 && amount == 1) {
+                } else if amount == 2 {
+                    amount = 1
+                } else if amount == 3 {
+                    amount = 6
+                } else if amount == 4 {
+                    amount = 2
+                } else if amount == 6 {
+                    amount = 7
+                } else if amount == 8 {
+                    amount = 0
+                } else if amount == 9 {
                     amount = 4
                 }
                 
-                part1Password.rotate(amount: amount, left: false)
+                if amount > 0 {
+                    part1Password.rotate(amount: amount, left: true)
+                }
             } else {
                 print ("Invalid rotate command: \(lineArr[1])")
             }
         } else if lineArr[0] == "move" {
-            let idx2 = Int(lineArr[2])!
             let idx1 = Int(lineArr[5])!
+            let idx2 = Int(lineArr[2])!
             let c = part1Password[idx1]
             let s0 = part1Password.substring(to: idx1) + part1Password.substring(from: idx1 + 1)
             let s1: String
@@ -241,13 +241,12 @@ func processArrayReverse(arr: [String]) {
             print ("Invalid command: \(lineArr[0])")
         }
         
-        print ("Password is now \(part1Password)")
+        lineCtr += 1
     }
 }
 
 part1Password = "fbgdceah"
-//let arrReversed = Array(puzzleInputLineArray!.reversed())
-//processArrayReverse(arr: arrReversed)
-processArrayReverse(arr: puzzleInputLineArray!)
+let arrReversed = Array(puzzleInputLineArray!.reversed())
+processArrayReverse(arr: arrReversed)
 
-print (part1Password, terminator: "")
+print ("Part 2 answer: \(part1Password)", terminator: "")
