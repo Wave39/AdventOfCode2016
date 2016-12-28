@@ -8,8 +8,8 @@
 
 import Foundation
 
-enum DeviceType {
-    case Microchip
+enum DeviceType : Int {
+    case Microchip = 1
     case Generator
 }
 
@@ -18,8 +18,8 @@ let deviceDict: Dictionary<DeviceType, String> = [
     .Generator : "G"
 ]
 
-enum ElementType {
-    case Cobalt
+enum ElementType: Int {
+    case Cobalt = 1
     case Curium
     case Hydrogen
     case Lithium
@@ -37,3 +37,8 @@ let elementDict: Dictionary<ElementType, String> = [
     .Plutonium: "Pu",
     .Ruthenium: "Ru"
 ]
+
+enum ElevatorDirection : Int {
+    case Up = 1
+    case Down
+}

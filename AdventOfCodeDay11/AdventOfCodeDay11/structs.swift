@@ -11,9 +11,14 @@ import Foundation
 struct Device {
     var elementType: ElementType
     var deviceType: DeviceType
+    
+    func description() -> String {
+        return "\(elementDict[self.elementType]!)\(deviceDict[self.deviceType]!) "
+    }
 }
 
 struct BuildingStatus {
+    var movesSoFar: Int
     var elevatorFloor: Int
     var floorArray: [[Device]]
     
@@ -28,12 +33,30 @@ struct BuildingStatus {
             }
             
             for dev in floorArray[i] {
-                s += "\(elementDict[dev.elementType]!)\(deviceDict[dev.deviceType]!) "
+                s += dev.description()
             }
             
-            s = s + "\n"
+            s += "\n"
         }
         
+        s += "Moves so far: \(movesSoFar)\n"
+        
         return s
+    }
+}
+
+struct Move {
+    var elevatorDirection: ElevatorDirection
+    var devicesToCarry: [Device]
+    
+    func description() -> String {
+        var s = (elevatorDirection == .Up ? "Up " : "Down ")
+        let sorted = devicesToCarry.sorted() { [$0.elementType.rawValue, $0.deviceType.rawValue].lexicographicallyPrecedes([$1.elementType.rawValue, $1.deviceType.rawValue]) }
+        
+        for d in sorted {
+            s += d.description()
+        }
+        
+        return s;
     }
 }
