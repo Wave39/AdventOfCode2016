@@ -23,10 +23,10 @@ func devicesDescription(devices: [Device]) -> String {
 func isMoveValid(building: BuildingStatus, move: Move) -> Bool {
     let moveString = move.description()
     if movesAlreadySeen.contains(moveString) {
-        print ("The move \(moveString) already has been considered")
+        //print ("The move \(moveString) already has been considered")
         return false
     } else {
-        print ("The move \(moveString) is new")
+        //print ("The move \(moveString) is new")
         movesAlreadySeen.insert(moveString)
     }
     
@@ -35,7 +35,7 @@ func isMoveValid(building: BuildingStatus, move: Move) -> Bool {
     nextFloorDevices.append(contentsOf: move.devicesToCarry)
     let microchips = nextFloorDevices.filter { $0.deviceType == .Microchip }
     let generators = nextFloorDevices.filter { $0.deviceType == .Generator }
-    print ("Floor \(nextFloor) will now have microchips \(devicesDescription(devices: microchips)) and generators \(devicesDescription(devices: generators))")
+    //print ("Floor \(nextFloor) will now have microchips \(devicesDescription(devices: microchips)) and generators \(devicesDescription(devices: generators))")
     var ok = true
     for microchip in microchips {
         var matchingGenerator = false
@@ -53,7 +53,7 @@ func isMoveValid(building: BuildingStatus, move: Move) -> Bool {
         }
     }
     
-    print ("Results are \(ok)")
+    //print ("Results are \(ok)")
     
     return ok;
 }
@@ -61,18 +61,28 @@ func isMoveValid(building: BuildingStatus, move: Move) -> Bool {
 func findValidMoves(building: BuildingStatus) -> [Move] {
     var v = Array<Move>()
     
+    var elevatorDirections: [ElevatorDirection] = []
+    if building.elevatorFloor == 0 {
+        elevatorDirections.append(.Up)
+    } else if building.elevatorFloor == 1 {
+        elevatorDirections.append(.Up)
+        if building.floorArray[0].count > 0 {
+            elevatorDirections.append(.Down)
+        }
+    } else if building.elevatorFloor == 2 {
+        elevatorDirections.append(.Up)
+        if building.floorArray[0].count > 0 || building.floorArray[1].count > 0 {
+            elevatorDirections.append(.Down)
+        }
+    } else {
+        elevatorDirections.append(.Down)
+    }
+    
     // do the one at a time moves first
     let deviceArray = building.floorArray[building.elevatorFloor]
     for device in deviceArray {
-        if building.elevatorFloor >= 1 {
-            let m = Move(elevatorDirection: .Down, devicesToCarry: [device])
-            if isMoveValid(building: building, move: m) {
-                v.append(m)
-            }
-        }
-        
-        if building.elevatorFloor <= 2 {
-            let m = Move(elevatorDirection: .Up, devicesToCarry: [device])
+        for ed in elevatorDirections {
+            let m = Move(elevatorDirection: ed, devicesToCarry: [device])
             if isMoveValid(building: building, move: m) {
                 v.append(m)
             }
@@ -83,15 +93,8 @@ func findValidMoves(building: BuildingStatus) -> [Move] {
     if deviceArray.count >= 2 {
         for i in 0...deviceArray.count - 2 {
             for j in i + 1...deviceArray.count - 1 {
-                if building.elevatorFloor >= 1 {
-                    let m = Move(elevatorDirection: .Down, devicesToCarry: [ deviceArray[i], deviceArray[j] ])
-                    if isMoveValid(building: building, move: m) {
-                        v.append(m)
-                    }
-                }
-                
-                if building.elevatorFloor <= 2 {
-                    let m = Move(elevatorDirection: .Up, devicesToCarry: [ deviceArray[i], deviceArray[j] ])
+                for ed in elevatorDirections {
+                    let m = Move(elevatorDirection: ed, devicesToCarry: [ deviceArray[i], deviceArray[j] ])
                     if isMoveValid(building: building, move: m) {
                         v.append(m)
                     }
@@ -101,6 +104,24 @@ func findValidMoves(building: BuildingStatus) -> [Move] {
     }
     
     return v
+}
+
+func findNextBuilding(building: BuildingStatus, move: Move) -> BuildingStatus {
+    var nextBuilding = building
+    
+    nextBuilding.movesSoFar += 1
+    let previousFloor = building.elevatorFloor
+    let nextFloor = building.elevatorFloor + (move.elevatorDirection == .Up ? 1 : -1)
+    
+    for d in move.devicesToCarry {
+        let idx = building.floorArray[previousFloor].index { $0.deviceType == d.deviceType && $0.elementType == d.elementType }
+        nextBuilding.floorArray[previousFloor].remove(at: idx!)
+        nextBuilding.floorArray[nextFloor].append(d)
+    }
+    
+    nextBuilding.elevatorFloor = nextFloor
+    
+    return nextBuilding
 }
 
 func printMoves(arr: [Move]) {
@@ -116,4 +137,8 @@ print ("Initial building diagram:\n\(part1Building.diagram())")
 let validMoves = findValidMoves(building: part1Building)
 printMoves(arr: validMoves)
 for move in validMoves {
+    print ("Move: \(move.description())")
+    let nextBuilding = findNextBuilding(building: part1Building, move: move)
+    print ("Building after move:\n\(nextBuilding.diagram())")
+    
 }
