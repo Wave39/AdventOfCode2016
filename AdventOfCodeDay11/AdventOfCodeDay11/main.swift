@@ -4,10 +4,13 @@
 
 import Foundation
 
-let initialConfiguration = puzzleInputTest
-//let initialConfiguration = puzzleInput
+//let initialConfiguration = puzzleInputTest
+//let numberOfDevicesForSolution = 4
+let initialConfiguration = puzzleInput
+let numberOfDevicesForSolution = 10
 
-var movesAlreadySeen: Set<String> = Set()
+//var movesAlreadySeen: Set<String> = Set()
+var buildingsAlreadySeen: Set<String> = Set()
 
 func devicesDescription(devices: [Device]) -> String {
     var s = ""
@@ -21,14 +24,14 @@ func devicesDescription(devices: [Device]) -> String {
 }
 
 func isMoveValid(building: BuildingStatus, move: Move) -> Bool {
-    let moveString = move.description()
-    if movesAlreadySeen.contains(moveString) {
-        //print ("The move \(moveString) already has been considered")
-        return false
-    } else {
-        //print ("The move \(moveString) is new")
-        movesAlreadySeen.insert(moveString)
-    }
+//    let moveString = move.description()
+//    if movesAlreadySeen.contains(moveString) {
+//        //print ("The move \(moveString) already has been considered")
+//        return false
+//    } else {
+//        //print ("The move \(moveString) is new")
+//        movesAlreadySeen.insert(moveString)
+//    }
     
     let nextFloor = building.elevatorFloor + (move.elevatorDirection == .Up ? 1 : -1)
     var nextFloorDevices = building.floorArray[nextFloor]
@@ -53,6 +56,16 @@ func isMoveValid(building: BuildingStatus, move: Move) -> Bool {
         }
     }
     
+    let nextBuilding = findNextBuilding(building: building, move: move)
+    let nextBuildingString = BuildingState.getBuildingState(building: nextBuilding)
+    if buildingsAlreadySeen.contains(nextBuildingString) {
+        //print ("The move \(nextBuildingString) already has been considered")
+        return false
+    } else {
+        //print ("The move \(nextBuildingString) is new")
+        buildingsAlreadySeen.insert(nextBuildingString)
+    }
+
     //print ("Results are \(ok)")
     
     return ok;
@@ -93,10 +106,13 @@ func findValidMoves(building: BuildingStatus) -> [Move] {
     if deviceArray.count >= 2 {
         for i in 0...deviceArray.count - 2 {
             for j in i + 1...deviceArray.count - 1 {
-                for ed in elevatorDirections {
-                    let m = Move(elevatorDirection: ed, devicesToCarry: [ deviceArray[i], deviceArray[j] ])
-                    if isMoveValid(building: building, move: m) {
-                        v.append(m)
+                let chipsOK = (deviceArray[i].deviceType == deviceArray[j].deviceType || deviceArray[i].elementType == deviceArray[j].elementType)
+                if chipsOK {
+                    for ed in elevatorDirections {
+                        let m = Move(elevatorDirection: ed, devicesToCarry: [ deviceArray[i], deviceArray[j] ])
+                        if isMoveValid(building: building, move: m) {
+                            v.append(m)
+                        }
                     }
                 }
             }
@@ -108,18 +124,20 @@ func findValidMoves(building: BuildingStatus) -> [Move] {
 
 func findNextBuilding(building: BuildingStatus, move: Move) -> BuildingStatus {
     var nextBuilding = building
+    nextBuilding.history += "Move: \(move.description())\n"
     
     nextBuilding.movesSoFar += 1
     let previousFloor = building.elevatorFloor
     let nextFloor = building.elevatorFloor + (move.elevatorDirection == .Up ? 1 : -1)
     
     for d in move.devicesToCarry {
-        let idx = building.floorArray[previousFloor].index { $0.deviceType == d.deviceType && $0.elementType == d.elementType }
+        let idx = nextBuilding.floorArray[previousFloor].index { $0.deviceType == d.deviceType && $0.elementType == d.elementType }
         nextBuilding.floorArray[previousFloor].remove(at: idx!)
         nextBuilding.floorArray[nextFloor].append(d)
     }
     
     nextBuilding.elevatorFloor = nextFloor
+    nextBuilding.history += nextBuilding.diagram(includeMoveCounter: true)
     
     return nextBuilding
 }
@@ -131,14 +149,40 @@ func printMoves(arr: [Move]) {
     }
 }
 
-var part1Building = BuildingStatus(movesSoFar: 0, elevatorFloor: 0, floorArray: initialConfiguration)
-print ("Initial building diagram:\n\(part1Building.diagram())")
+var part1Building = BuildingStatus(movesSoFar: 0, elevatorFloor: 0, floorArray: initialConfiguration, history: "")
+part1Building.history = part1Building.diagram(includeMoveCounter: true)
+//print ("Initial building diagram:\n\(part1Building.diagram(includeMoveCounter: true))")
 
-let validMoves = findValidMoves(building: part1Building)
-printMoves(arr: validMoves)
-for move in validMoves {
-    print ("Move: \(move.description())")
-    let nextBuilding = findNextBuilding(building: part1Building, move: move)
-    print ("Building after move:\n\(nextBuilding.diagram())")
+var foundSolutionAtMove = 0
+
+var currentBuildingArray = [ part1Building ]
+var ctr = 0
+
+while foundSolutionAtMove == 0 && ctr < 100 {
+    ctr += 1
+    print ("Working on step \(ctr)")
     
+    var nextBuildingArray: [ BuildingStatus ] = []
+    
+    for bldg in currentBuildingArray {
+        let validMoves = findValidMoves(building: bldg)
+        //printMoves(arr: validMoves)
+        for move in validMoves {
+            //print ("Move: \(move.description())")
+            let nextBuilding = findNextBuilding(building: bldg, move: move)
+            //print ("Building after move:\n\(nextBuilding.diagram(includeMoveCounter: true))")
+            nextBuildingArray.append(nextBuilding)
+            
+            if nextBuilding.floorArray[3].count == numberOfDevicesForSolution {
+                foundSolutionAtMove = nextBuilding.movesSoFar
+                print ("***** WINNER *****")
+                print (nextBuilding.history)
+                print ("***** WINNER *****")
+            }
+        }
+    }
+    
+    currentBuildingArray = nextBuildingArray
 }
+
+print ("Part 1 solution: \(foundSolutionAtMove)")

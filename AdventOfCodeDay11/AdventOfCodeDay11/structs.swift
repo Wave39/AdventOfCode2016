@@ -15,14 +15,19 @@ struct Device {
     func description() -> String {
         return "\(elementDict[self.elementType]!)\(deviceDict[self.deviceType]!) "
     }
+    
+    static func ==(lhs: Device, rhs: Device) -> Bool {
+        return lhs.elementType == rhs.elementType && lhs.deviceType == rhs.deviceType
+    }
 }
 
 struct BuildingStatus {
     var movesSoFar: Int
     var elevatorFloor: Int
     var floorArray: [[Device]]
+    var history: String
     
-    func diagram() -> String {
+    func diagram(includeMoveCounter: Bool) -> String {
         var s = ""
         for i in (0...3).reversed() {
             s = s + "\(i + 1) "
@@ -32,14 +37,17 @@ struct BuildingStatus {
                 s += "- "
             }
             
-            for dev in floorArray[i] {
-                s += dev.description()
-            }
+            s += devicesDescription(devices: floorArray[i])
+//            for dev in floorArray[i] {
+//                s += dev.description()
+//            }
             
             s += "\n"
         }
         
-        s += "Moves so far: \(movesSoFar)\n"
+        if includeMoveCounter {
+            s += "Moves so far: \(movesSoFar)\n"
+        }
         
         return s
     }
@@ -58,5 +66,39 @@ struct Move {
         }
         
         return s;
+    }
+}
+
+struct BuildingState {
+    var floorArray: [[Int]]
+    var elevatorFloor: Int
+    
+    func description() -> String {
+        return "\(floorArray) \(elevatorFloor)"
+    }
+    
+    static func getBuildingState(building: BuildingStatus) -> String {
+        var buildingState = BuildingState(floorArray: [[0,0,0],[0,0,0],[0,0,0],[0,0,0]], elevatorFloor: 0)
+        for i in 0...3 {
+            for j in building.floorArray[i] {
+                if j.deviceType == .Microchip {
+                    let d = Device(elementType: j.elementType, deviceType: .Generator)
+                    if !building.floorArray[i].contains(where: {$0 == d}) {
+                        buildingState.floorArray[i][0] += 1
+                    } else {
+                        buildingState.floorArray[i][2] += 1
+                    }
+                } else {
+                    let d = Device(elementType: j.elementType, deviceType: .Microchip)
+                    if !building.floorArray[i].contains(where: {$0 == d}) {
+                        buildingState.floorArray[i][1] += 1
+                    }
+                }
+            }
+        }
+        
+        buildingState.elevatorFloor = building.elevatorFloor
+        
+        return buildingState.description()
     }
 }

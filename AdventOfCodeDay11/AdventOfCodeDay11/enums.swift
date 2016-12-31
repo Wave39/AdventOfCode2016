@@ -26,6 +26,8 @@ enum ElementType: Int {
     case Promethium
     case Plutonium
     case Ruthenium
+    case Strontium
+    case Thulium
 }
 
 let elementDict: Dictionary<ElementType, String> = [
@@ -35,7 +37,9 @@ let elementDict: Dictionary<ElementType, String> = [
     .Lithium : "L",     // yes, it's not the elemental symbol, but it looks better formatted into the diagram
     .Promethium: "Pm",
     .Plutonium: "Pu",
-    .Ruthenium: "Ru"
+    .Ruthenium: "Ru",
+    .Strontium: "Sr",
+    .Thulium: "Tm",
 ]
 
 enum ElevatorDirection : Int {
