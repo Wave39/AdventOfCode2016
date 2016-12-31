@@ -38,10 +38,6 @@ struct BuildingStatus {
             }
             
             s += devicesDescription(devices: floorArray[i])
-//            for dev in floorArray[i] {
-//                s += dev.description()
-//            }
-            
             s += "\n"
         }
         

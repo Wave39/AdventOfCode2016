@@ -21,25 +21,25 @@ let deviceDict: Dictionary<DeviceType, String> = [
 enum ElementType: Int {
     case Cobalt = 1
     case Curium
+    case Dilithium
+    case Elerium
     case Hydrogen
     case Lithium
     case Promethium
     case Plutonium
     case Ruthenium
-    case Strontium
-    case Thulium
 }
 
 let elementDict: Dictionary<ElementType, String> = [
     .Cobalt: "Co",
     .Curium: "Cm",
+    .Dilithium: "Di",
+    .Elerium: "El",
     .Hydrogen : "H",
     .Lithium : "L",     // yes, it's not the elemental symbol, but it looks better formatted into the diagram
     .Promethium: "Pm",
     .Plutonium: "Pu",
     .Ruthenium: "Ru",
-    .Strontium: "Sr",
-    .Thulium: "Tm",
 ]
 
 enum ElevatorDirection : Int {
