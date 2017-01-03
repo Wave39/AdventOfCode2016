@@ -4,8 +4,11 @@
 
 import Foundation
 
-let favoriteNumber = 10
-//let favoriteNumber = 1364
+let origin = Coordinate(x: 1, y: 1)
+//let goal = Coordinate(x: 7, y: 4)
+//let favoriteNumber = 10
+let goal = Coordinate(x: 31, y: 39)
+let favoriteNumber = 1364
 
 func coordinateIsWall(c: Coordinate) -> Bool {
     if c.x < 0 || c.y < 0 {
@@ -38,12 +41,34 @@ func getValidMoveCoordinates(moveState: MoveState) -> [Coordinate] {
     return arr
 }
 
-let origin = Coordinate(x: 1, y: 1)
+func processMoveState(moveState: MoveState, goal: Coordinate) -> Int {
+    
+    var currentStates = [ moveState ]
+    var goalFound = 0
+    var ctr = 0
+    
+    while goalFound == 0 {
+        ctr += 1
+        print (ctr)
+        var nextStates: [ MoveState ] = []
+        for state in currentStates {
+            let validMoves = getValidMoveCoordinates(moveState: state)
+            for move in validMoves {
+                let nextMove = MoveState(currentCoordinate: move, previousCoordinate: state.currentCoordinate, numberOfMoves: state.numberOfMoves + 1)
+                nextStates.append(nextMove)
+                if move == goal {
+                    goalFound = nextMove.numberOfMoves
+                }
+            }
+        }
+        
+        currentStates = nextStates
+    }
+    
+    return goalFound
+}
+
 let part1 = MoveState(currentCoordinate: origin, previousCoordinate: origin, numberOfMoves: 0)
-print (part1)
 
-print ("0,0: \(coordinateIsWall(c: Coordinate(x: 0, y: 0)))")
-print ("1,0: \(coordinateIsWall(c: Coordinate(x: 1, y: 0)))")
-
-let arr = getValidMoveCoordinates(moveState: part1)
-print (arr)
+let part1Solution = processMoveState(moveState: part1, goal: goal)
+print ("Part 1 solution: \(part1Solution)")
