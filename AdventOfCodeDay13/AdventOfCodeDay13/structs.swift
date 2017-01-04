@@ -19,6 +19,10 @@ struct Coordinate {
     static func !=(lhs: Coordinate, rhs: Coordinate) -> Bool {
         return !(lhs == rhs)
     }
+    
+    func description() -> String {
+        return "\(self.x) \(self.y)"
+    }
 }
 
 struct MoveState {

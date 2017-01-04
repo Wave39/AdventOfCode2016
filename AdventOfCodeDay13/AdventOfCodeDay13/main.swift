@@ -9,6 +9,8 @@ let origin = Coordinate(x: 1, y: 1)
 //let favoriteNumber = 10
 let goal = Coordinate(x: 31, y: 39)
 let favoriteNumber = 1364
+var coordinatesSeen: Set<String> = Set()
+var part2Solution = 0
 
 func coordinateIsWall(c: Coordinate) -> Bool {
     if c.x < 0 || c.y < 0 {
@@ -27,14 +29,20 @@ func getValidMoveCoordinates(moveState: MoveState) -> [Coordinate] {
     for xDelta in [ -1, 1] {
         let newCoordinate = Coordinate(x: moveState.currentCoordinate.x + xDelta, y: moveState.currentCoordinate.y)
         if newCoordinate != moveState.previousCoordinate && !coordinateIsWall(c: newCoordinate) {
-            arr.append(newCoordinate)
+            if !coordinatesSeen.contains(newCoordinate.description()) {
+                arr.append(newCoordinate)
+                coordinatesSeen.insert(newCoordinate.description())
+            }
         }
     }
     
     for yDelta in [-1, 1] {
         let newCoordinate = Coordinate(x: moveState.currentCoordinate.x, y: moveState.currentCoordinate.y + yDelta)
         if newCoordinate != moveState.previousCoordinate && !coordinateIsWall(c: newCoordinate) {
-            arr.append(newCoordinate)
+            if !coordinatesSeen.contains(newCoordinate.description()) {
+                arr.append(newCoordinate)
+                coordinatesSeen.insert(newCoordinate.description())
+            }
         }
     }
     
@@ -42,14 +50,17 @@ func getValidMoveCoordinates(moveState: MoveState) -> [Coordinate] {
 }
 
 func processMoveState(moveState: MoveState, goal: Coordinate) -> Int {
-    
     var currentStates = [ moveState ]
     var goalFound = 0
     var ctr = 0
+    coordinatesSeen = Set()
+    coordinatesSeen.insert(moveState.currentCoordinate.description())
     
     while goalFound == 0 {
-        ctr += 1
-        print (ctr)
+        if ctr == 50 {
+            part2Solution = coordinatesSeen.count
+        }
+        
         var nextStates: [ MoveState ] = []
         for state in currentStates {
             let validMoves = getValidMoveCoordinates(moveState: state)
@@ -63,12 +74,15 @@ func processMoveState(moveState: MoveState, goal: Coordinate) -> Int {
         }
         
         currentStates = nextStates
+        ctr += 1
     }
     
     return goalFound
 }
 
 let part1 = MoveState(currentCoordinate: origin, previousCoordinate: origin, numberOfMoves: 0)
+coordinatesSeen = Set()
 
 let part1Solution = processMoveState(moveState: part1, goal: goal)
 print ("Part 1 solution: \(part1Solution)")
+print ("Part 2 solution: \(part2Solution)")
