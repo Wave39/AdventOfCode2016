@@ -19,6 +19,11 @@ struct Cluster {
     var usePercent: Int
 }
 
+struct GameState {
+    var clusterArray: [[Cluster]]
+    var moves: Int
+}
+
 var clusterArray: [[Cluster]] = []
 let lineArray = puzzleInput.components(separatedBy: "~")
 var clusterLineArray: [Cluster] = []
@@ -57,4 +62,30 @@ for x1 in 0...37 {
 
 print ("Part 1 solution: \(part1Solution)")
 
-// empty cluster is at x 17, y 22
+func printArray(arr: [[Cluster]]) {
+    for y in 0...25 {
+        var s = ""
+        for x in 0...37 {
+            let used = arr[x][y].used
+            if used == 0 {
+                s = s + "[] "
+            } else if used > 99 {
+                s = s + "== "
+            } else {
+                s = s + "\(used) "
+            }
+        }
+        
+        print (s)
+    }
+}
+
+func findPart2Solution() -> Int {
+    // 8 up, 17 left, 2 up, 36 right, 12 up, 5 * 36 cycle, 1 left
+    return 8 + 17 + 2 + 36 + 12 + (5 * 36) + 1
+}
+
+printArray(arr: clusterArray)
+
+let part2Solution = findPart2Solution()
+print ("Part 2 solution: \(part2Solution)")
